@@ -53,6 +53,7 @@ check_windows:
 	pylint ${python_source}
 
 require:
+	${activate}
 	pip install pip-tools
 	pip-compile --output-file requirements.txt pyproject.toml 
 

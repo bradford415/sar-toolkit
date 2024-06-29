@@ -1,0 +1,16 @@
+# Base config file which stores the default parameters which apply to all model configurations
+---
+
+# Root directory of your project; type "pwd" in the command line to find it
+root_dir: "C:/Users/bsele/Documents/Programming/machine-learning/detectors"
+
+input_data: "data/input.txt"
+
+output_path: "output"
+
+# Parameters for the dataset class
+data:
+
+  # Path to the root of the dataset
+  root: "/mnt/c/Users/bsele/Documents/datasets/capella-sar"
+
