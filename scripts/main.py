@@ -22,7 +22,7 @@ def main(base_config_path: str):
     print(cphd_paths)
 
     cphd_reader = CPHDReader(cphd_paths[0])
-    signal = cphd_reader.read_signal_block()['0']
+    signal = cphd_reader.read_signal_block()["0"]
     print(np.array(cphd_reader[:]).shape)
     print(signal.shape)
 

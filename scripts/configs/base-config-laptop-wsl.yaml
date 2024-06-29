@@ -6,6 +6,7 @@ root_dir: "C:/Users/bsele/Documents/Programming/machine-learning/detectors"
 
 input_data: "data/input.txt"
 
+# Local path for output_files
 output_path: "output"
 
 # Parameters for the dataset class
