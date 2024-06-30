@@ -50,24 +50,9 @@ def main(base_config_path: str):
     # Compressing other dimension should produce an image focused in the center.
     signal_img = np.fft.fftshift(np.fft.fft(signal_time, axis=0), axes=0)
 
-    sti = 10 * np.log10(np.abs(signal_img))
-    sti = sti - np.nanmax(sti)
-
     visualizer = Visualizer(output_dir)
     visualizer.plot_sicd(complex_pixels=sicd_pixels)
     exit()
-
-    # remapped_img = Density()(signal_img)
-    remapped_img = Density()(sicd_pixels)
-
-    fig, ax = plt.subplots()
-    # ax = plt.imshow(remapped_img, cmap="gray", vmin=-35.0, vmax=0.0)\
-    ax.axis("off")
-    ax.imshow(remapped_img, cmap="gray", vmin=0.0, vmax=255.0)
-    plt.savefig(output_dir / "sicd_remap.png", bbox_inches="tight", dpi=400)
-
-    end = time.time()
-    print(f"Time taken to execute {end - start}")
 
 
 if __name__ == "__main__":

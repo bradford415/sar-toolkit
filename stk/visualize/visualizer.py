@@ -1,8 +1,8 @@
 from pathlib import Path
 
-from PIL import Image
 import matplotlib.pyplot as plt
 import numpy as np
+from PIL import Image
 from sarpy.io.complex.sicd import SICDReader
 from sarpy.visualization.remap import Density
 
