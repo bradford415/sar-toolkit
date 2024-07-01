@@ -1,10 +1,12 @@
 # Utility file for SICD operations
 from pathlib import Path
+
 from sarpy.io.complex.sicd import SICDReader
+
 
 def load_sicd(sicd_path: Path):
     """Load SICD complex data from file path with .ntf file extension
-    
+
     Args:
         sicd_path: Path to SICD file with .ntf extension
 

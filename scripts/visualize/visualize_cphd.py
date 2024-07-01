@@ -35,7 +35,7 @@ def main(base_config_path: str):
 
     assert cphd_paths
     assert sicd_paths
-    
+
     cphd_reader = CPHDReader(cphd_paths[0])
     sicd_reader = SICDReader(sicd_paths[0])
     sicd_pixels = sicd_reader[:]

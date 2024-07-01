@@ -1,4 +1,5 @@
 import glob
+import json
 import time
 from pathlib import Path
 
@@ -30,18 +31,32 @@ def main(base_config_path: str):
     sicd_paths = glob.glob(str(Path(base_config["data"]["root"]) / "sicds" / "*.ntf"))
 
     assert sicd_paths
-    
-    sicd_reader = SICDReader(sicd_paths[0])
-    sicd_pixels = sicd_reader[:]
 
     sicd_dir = Path(output_dir / "remapped_sicds")
     sicd_dir.mkdir(parents=True, exist_ok=True)
 
     visualizer = Visualizer()
-    
+
     for sicd_path in sicd_paths:
-        save_name = sicd_dir / f"{Path(sicd_path).stem}.png"
-        visualizer.plot_sicd(complex_pixels=sicd_pixels, save_path=str(save_name))
+        sicd_reader = SICDReader(sicd_path)
+        sicd_pixels = sicd_reader[:]
+
+        # Create remapper and calculate the sicd data_mean to be used for remapping;
+        # this data_mean will be saved and used to remap the chips in another script
+        remapper = Density()
+        remapper.calculate_global_parameters_from_reader(sicd_reader)
+
+        sicd_metadata = {"data_mean": remapper.data_mean}
+
+        sicd_name = Path(sicd_path).stem
+        save_name_png = sicd_dir / f"{sicd_name}.png"
+        visualizer.plot_sicd(
+            complex_pixels=sicd_pixels, remapper=remapper, save_path=str(save_name_png)
+        )
+
+        metadata_name = sicd_dir / f"{sicd_name}.json"
+        with open(metadata_name, "w") as json_file:
+            json.dump(sicd_metadata, json_file)
 
 
 if __name__ == "__main__":
