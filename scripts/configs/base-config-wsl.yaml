@@ -13,3 +13,6 @@ data:
 
   # Path to the root of the dataset
   root: "/mnt/c/Users/bsele/Documents/Datasets/capella-sar"
+
+  # Path to the sicd chips
+  chips: "/home/bselee/programming/sar-toolkit/output/sicd_chips/CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202"
