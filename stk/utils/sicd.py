@@ -4,7 +4,7 @@ from pathlib import Path
 from sarpy.io.complex.sicd import SICDReader
 
 
-def load_sicd(sicd_path: Path):
+def load_sicd_pixels(sicd_path: Path):
     """Load SICD complex data from file path with .ntf file extension
 
     Args:
