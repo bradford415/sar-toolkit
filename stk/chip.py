@@ -2,7 +2,7 @@ from pathlib import Path
 
 import numpy as np
 
-from stk.utils.sicd import load_sicd
+from stk.utils.sicd import load_sicd_pixels
 
 
 class Chipper:
@@ -24,7 +24,7 @@ class Chipper:
         """TODO"""
 
         for sicd_path in sicd_paths:
-            complex_pixels = load_sicd(sicd_path)
+            complex_pixels = load_sicd_pixels(sicd_path)
 
             # Crop image to make it divisble by the desired chip dimensions
             h, w = complex_pixels.shape

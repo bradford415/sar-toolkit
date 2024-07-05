@@ -43,7 +43,7 @@ def main(base_config_path: str):
     assert chip_paths
 
     visualizer = Visualizer()
-    
+
     # Initialize remapper with data_mean from full scene SICD
     remapper = Density(data_mean=sicd_metadata["data_mean"])
 
@@ -56,8 +56,10 @@ def main(base_config_path: str):
 
         save_name = chip_dir / f"{chip_name}.png"
 
-        visualizer.plot_sicd(complex_pixels=chip, remapper=remapper, save_path=save_name)
-        
+        visualizer.plot_sicd(
+            complex_pixels=chip, remapper=remapper, save_path=save_name
+        )
+
 
 if __name__ == "__main__":
     Fire(main)
