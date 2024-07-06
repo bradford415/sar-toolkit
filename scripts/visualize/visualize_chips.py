@@ -33,6 +33,8 @@ def main(base_config_path: str):
 
     sicd_path = Path(base_config["data"]["chips"])
     sicd_name = sicd_path.name
+
+    # Gather all chip paths
     chip_paths = sorted(glob.glob(str(sicd_path / "*.npy")))
 
     # Load sicd metadata for remap

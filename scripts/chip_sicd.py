@@ -4,6 +4,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import yaml
 from fire import Fire
 from sarpy.io.complex.sicd import SICDReader

@@ -4,6 +4,7 @@ from pathlib import Path
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pandas as pd
 import yaml
 from fire import Fire
 from sarpy.io.complex.sicd import SICDReader
@@ -44,11 +45,31 @@ def main(base_config_path: str):
 
     sicd_paths = glob.glob(str(Path(base_config["data"]["root"]) / "sicds" / "*.ntf"))
 
+    # Init file paths
+    output_dir = Path(base_config["output_path"])
+    output_dir.mkdir(parents=True, exist_ok=True)
+
+    chips_root_path = Path(base_config["data"]["chips"])
+
+    
+    sicd_csv = pd.read_csv(chips_root_path / f"{chips_root_path.stem}.csv")
+    
+    # Gather chip paths in order; glob does not have a great way to load the file paths in order
+    chip_names = sicd_csv["chip_name"].tolist()
+    apply_full_path = lambda file, root: f"{root}/{file}.npy"
+
+    full_chip_path = [apply_full_path(f_name, chips_root_path) for f_name in chip_names]
+
+    #start here@@@@@@@@@@@@@@@@@@@@@@
+
     assert sicd_paths
 
-    sicd_pixels, sicd_reader = load_sicd_pixels(sicd_paths[0])
+    _, sicd_reader = load_sicd_pixels(sicd_paths[0])
+
+    sicd_pixels = np.load(chip_paths[5])
 
     # Degrade image with random 10th order polynomial phase
+    breakpoint()
     coeff = (np.random.rand(10) - 0.5) * sicd_pixels.shape[0]
     x = np.linspace(-1, 1, sicd_pixels.shape[0])
     y = np.poly1d(coeff)(x)
@@ -62,7 +83,11 @@ def main(base_config_path: str):
 
     # Initialize remapper with data_mean from full scene SICD
     remapper = Density()
-    remapper.calculate_global_params_from_reader(sicd_reader)
+    remapper.calculate_global_parameters_from_reader(sicd_reader)
+
+    save_name = "defocused.png"
+    visualizer.plot_sicd(complex_pixels=img_err, remapper=remapper, save_path=save_name)
+    print("Finished?")
 
 
 if __name__ == "__main__":
