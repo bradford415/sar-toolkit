@@ -19,14 +19,24 @@ from scipy.fftpack import fft, fft2, fftshift, ifft, ifft2
 #    AUTOFOCUS FOR SYNTHETIC APERTURE SONAR." 5th annual Institute of Acoustics
 #    SAS/SAR Conference. Lerici, Italy. 2023.
 #
-#   Assumes SLC azimuth is vertical dimension and range increases left to right
+#   Assumes SLC (single look complex) azimuth is vertical dimension and range increases left to right
 # along the horizontal dimension.
 #
 # "np" is the numpy package.
 # "sig" is the signal package from RITSAR.
 # --------------------------------------------------------------------------------------
 def pga(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
+    """TODO
+    
+    page 269 in Carrara
+    
+    Args:
+    
+    """
 
+    ## NOTE: Might have to start with only range compressed data... i.e take the FFT in the azimuth direction
+    ## Will have to test this out on a defocused chip
+    
     # Derive parameters
     npulses = int(img.shape[0])
     nsamples = int(img.shape[1])
@@ -56,7 +66,7 @@ def pga(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
 
         # Create a 1D window centered around the azimuth center; this window limits the azimuth only, not the range bins
         if win == "auto":
-            # Compute window width
+            # Compute window width by summing along rand bins
             range_sum = np.sum(shifted_image * np.conj(shifted_image), axis=-1)
 
             # Caluclate power ratio in decibels (dBs); log10(x) = # of bels and 10log10(x) = # of decibels
