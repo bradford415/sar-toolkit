@@ -143,7 +143,7 @@ def pga(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
         phi2 = np.tile(np.array([phi]).T, (1, nsamples))
         IMG_af = ift(img_af, ax=0)
         IMG_af = IMG_af * np.exp(-1j * phi2)
-        img_af = ft(IMG_af, ax=0)
+        img_af = ft(IMG_af, ax=0) # FIXME: gets back in az signal domain because thats what the algo requires maybe?
 
         # Store phase
         af_ph += phi
