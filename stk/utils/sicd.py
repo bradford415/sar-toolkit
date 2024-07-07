@@ -39,4 +39,4 @@ def load_ordered_chips(chips_root_path):
     return full_chip_paths
 
 def load_sicd_json():
-    
+    pass

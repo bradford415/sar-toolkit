@@ -48,8 +48,6 @@ def azimuth_defocus(complex_pixels: np.ndarray[np.complex_], ph_err_order: int =
     poly = np.poly1d(coeff)
     y = poly(x)
 
-    print(f"Using polynomial of order: {poly.order}")
-
     # Create a line from the data using  least-squares regression to remove the linear trend;
     # I'm not sure why we need to remove the linear trend
     slope, intercept, r_value, p_value, std_err = linregress(x, y)

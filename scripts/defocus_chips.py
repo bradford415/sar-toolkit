@@ -49,17 +49,15 @@ def main(base_config_path: str):
 
     # Initialize remapper with data_mean from full scene SICD
     remapper = Density(data_mean=sicd_metadata["data_mean"])
-    remapper.calculate_global_parameters_from_reader(sicd_reader)
 
     visualizer = Visualizer()
 
     defocused_chip_dir = output_dir / "defocused_chips_from_chips" / sicd_name
     defocused_chip_dir.mkdir(parents=True, exist_ok=True)
 
-    for chip_path in full_chip_paths:
+    for index, chip_path in enumerate(full_chip_paths):
         ## TODO: Save chip error metadata i.e. the poly coefficients as json maybe
         chip_name = Path(chip_path).stem
-        _, sicd_reader = load_sicd_pixels(chip_path)
 
         sicd_pixels = np.load(chip_path)
         
@@ -67,6 +65,10 @@ def main(base_config_path: str):
 
         save_name = defocused_chip_dir / f"defocused_{chip_name}.png"
         visualizer.plot_sicd(complex_pixels=defocused_image, remapper=remapper, save_path=save_name)
+        print(f"Defocused {index+1}/{len(full_chip_paths)}")\
+        
+        if index == 10:
+            break
 
 
     ######## START HERE, test this script then implement defocus sicd to only defocus the sicd, then chip the defocused sicd

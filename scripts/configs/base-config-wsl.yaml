@@ -17,3 +17,11 @@ data:
 
   # Path to the sicd chips
   chips: "/home/bselee/programming/sar-toolkit/output/sicd_chips/CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202"
+
+# Parameters for the defocus script
+defocus:
+  # File type to defocus; either sicd or chip
+  image_type: "sicd"
+
+  # Order of polynomial phase error
+  phase_err_order: 7
