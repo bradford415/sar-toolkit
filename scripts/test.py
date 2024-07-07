@@ -27,16 +27,16 @@ from scipy.fftpack import fft, fft2, fftshift, ifft, ifft2
 # --------------------------------------------------------------------------------------
 def pga(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
     """TODO
-    
+
     page 269 in Carrara
-    
+
     Args:
-    
+
     """
 
     ## NOTE: Might have to start with only range compressed data... i.e take the FFT in the azimuth direction
     ## Will have to test this out on a defocused chip
-    
+
     # Derive parameters
     npulses = int(img.shape[0])
     nsamples = int(img.shape[1])
