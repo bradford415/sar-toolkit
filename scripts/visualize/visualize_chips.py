@@ -31,11 +31,13 @@ def main(base_config_path: str):
     output_dir = Path(base_config["output_path"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    sicd_path = Path(base_config["data"]["chips"])
-    sicd_name = sicd_path.name
+    chips_path = Path(base_config["data"]["chips"])
+    sicd_name = chips_path.name
+
+    ## TODO: Load chips with csv, not glob
 
     # Gather all chip paths
-    chip_paths = sorted(glob.glob(str(sicd_path / "*.npy")))
+    chip_paths = sorted(glob.glob(str(chips_path / "*.npy")))
 
     # Load sicd metadata for remap
     metadata_name = output_dir / "remapped_sicds" / f"{sicd_name}.json"

@@ -9,7 +9,7 @@ input_data: "data/input.txt"
 # Local path for output_files
 output_path: "output"
 
-# Parameters for the dataset class
+# Parameters for the dataset
 data:
 
   # Path to the root of the dataset
@@ -20,4 +20,14 @@ data:
 
 # Parameters for the chip_sicd.py script
 chip_sicd:
+
+# Parameters for the defocus script
+defocus:
+  # File type to defocus; either sicd or chip
+  image_type: "sicd"
+
+  # Order of polynomial phase error
+  phase_err_order: 7
+
+
   
