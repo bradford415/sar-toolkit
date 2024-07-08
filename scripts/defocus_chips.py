@@ -52,7 +52,7 @@ def main(base_config_path: str):
 
     visualizer = Visualizer()
 
-    defocused_chip_dir = output_dir / "defocused_chips_from_chips_temp" / sicd_name
+    defocused_chip_dir = output_dir / "defocused_chips_from_chips_temp_1" / sicd_name
     defocused_chip_dir.mkdir(parents=True, exist_ok=True)
 
     for index, chip_path in enumerate(full_chip_paths):
@@ -63,8 +63,11 @@ def main(base_config_path: str):
         
         defocused_image, test_img = azimuth_defocus(sicd_pixels, ph_err_order=base_config["defocus"]["phase_err_order"])
 
-        save_name = defocused_chip_dir / f"defocused_{chip_name}.png"
-        visualizer.plot_sicd(complex_pixels=test_img, remapper=remapper, save_path=save_name)
+        save_name = defocused_chip_dir / f"defocused_{chip_name}_old.png"
+        save_name2 = defocused_chip_dir / f"defocused_{chip_name}_new.png"
+        print(np.allclose(defocused_image, test_img))
+        visualizer.plot_sicd(complex_pixels=defocused_image, remapper=remapper, save_path=save_name)
+        visualizer.plot_sicd(complex_pixels=test_img, remapper=remapper, save_path=save_name2)
         print(f"Defocused {index+1}/{len(full_chip_paths)}")\
         
         if index == 10:

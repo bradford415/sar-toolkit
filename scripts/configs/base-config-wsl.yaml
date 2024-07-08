@@ -24,4 +24,4 @@ defocus:
   image_type: "sicd"
 
   # Order of polynomial phase error
-  phase_err_order: 7
+  phase_err_order: 5
