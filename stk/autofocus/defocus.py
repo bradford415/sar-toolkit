@@ -67,6 +67,8 @@ def azimuth_defocus(complex_pixels: np.ndarray[np.complex_], ph_err_order: int =
     #                                       [range, range, range]]
     ph_err = np.tile(y[np.newaxis, :], (complex_pixels.shape[0], 1))
 
+    ## START HERE: choose ift or ft first, then finished defocus_sicd.py and chip, then try pga on the chips
+
     # Apply phase error by taking the inverse TODO
     img_err = ft(ift(complex_pixels, ax=1) * np.exp(-1j * ph_err), ax=1)
     img_err2 = ift(ft(complex_pixels, ax=1) * np.exp(-1j * ph_err), ax=1)
