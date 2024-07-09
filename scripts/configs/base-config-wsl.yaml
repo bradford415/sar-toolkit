@@ -25,3 +25,6 @@ defocus:
 
   # Order of polynomial phase error
   phase_err_order: 5
+
+  # Random seed for polynomial coefficients; use null for no seed
+  seed: 42

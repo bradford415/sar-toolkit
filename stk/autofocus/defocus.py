@@ -1,6 +1,7 @@
 import glob
 import time
 from pathlib import Path
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -18,7 +19,7 @@ from stk.utils.signal import ft, ift
 from stk.visualize.visualizer import Visualizer
 
 
-def azimuth_defocus(complex_pixels: np.ndarray[np.complex_], ph_err_order: int = 10):
+def azimuth_defocus(complex_pixels: np.ndarray[np.complex_], ph_err_order: int = 10, rand_seed: Optional[int] = None):
     """Defocus a complex_image by an nth order polynomial phase error in the azimuth direction.
     This implementation is largely based on: https://github.com/isaacgerg/synthetic_aperture_sonar_autofocus/blob/master/pga.py
 
@@ -32,6 +33,8 @@ def azimuth_defocus(complex_pixels: np.ndarray[np.complex_], ph_err_order: int =
     """
     if ph_err_order <= 1:
         raise ValueError("Polynomial order of the phase error must be greater than 1.")
+    
+    np.random.seed(rand_seed)
 
     # Since np.poly1d includes the constant, we need to increment by for it to be true nth order polynomial
     ph_err_order += 1
@@ -65,7 +68,16 @@ def azimuth_defocus(complex_pixels: np.ndarray[np.complex_], ph_err_order: int =
     ph_err = np.tile(y[np.newaxis, :], (complex_pixels.shape[0], 1))
 
     # Apply phase error by taking the inverse TODO
-    img_err = ft(ift(complex_pixels, ax=1) * np.exp(1j * ph_err), ax=1)
-    img_err2 = ift(ft(complex_pixels, ax=1) * np.exp(1j * ph_err), ax=1)
+    img_err = ft(ift(complex_pixels, ax=1) * np.exp(-1j * ph_err), ax=1)
+    img_err2 = ift(ft(complex_pixels, ax=1) * np.exp(-1j * ph_err), ax=1)
+    print("Here")
+    print(img_err[0,0])
+    print(img_err2[0,0])
+    print("end")
     
-    return img_err, img_err2
+    img_err_fin = ft(ift(img_err, ax=1) * np.exp(1j * ph_err), ax=1)
+    img_err2_fin = ift(ft(img_err2, ax=1) * np.exp(1j * ph_err), ax=1)
+    
+    print(f"{np.allclose(img_err_fin, img_err2_fin) = }")
+    
+    return img_err_fin, img_err2_fin

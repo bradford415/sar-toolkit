@@ -61,7 +61,10 @@ def main(base_config_path: str):
 
         sicd_pixels = np.load(chip_path)
         
-        defocused_image, test_img = azimuth_defocus(sicd_pixels, ph_err_order=base_config["defocus"]["phase_err_order"])
+        defocused_image, test_img = azimuth_defocus(sicd_pixels, ph_err_order=base_config["defocus"]["phase_err_order"], rand_seed=base_config["defocus"]["seed"])
+
+        print(defocused_image[0,0])
+        print(test_img[0,0])
 
         save_name = defocused_chip_dir / f"defocused_{chip_name}_old.png"
         save_name2 = defocused_chip_dir / f"defocused_{chip_name}_new.png"
