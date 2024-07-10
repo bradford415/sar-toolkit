@@ -1,6 +1,7 @@
 import glob
 import time
 from pathlib import Path
+import json
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -32,38 +33,41 @@ def main(base_config_path: str):
     output_dir = Path(base_config["output_path"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Init file paths
-    output_dir = Path(base_config["output_path"])
-    output_dir.mkdir(parents=True, exist_ok=True)
+    sicd_paths = glob.glob(str(Path(base_config["data"]["root"]) / "sicds" / "*.ntf"))
 
-    chips_root_path = Path(base_config["data"]["chips"])
-
-    full_chip_paths = load_ordered_chips(chips_root_path)
-
-    assert full_chip_paths
-
-    sicd_pixels = np.load(full_chip_paths[5])
+    assert sicd_paths
     
-    defocused_image, test_img = azimuth_defocus(sicd_pixels, ph_err_order=1)
+    sicd_dir = Path(output_dir / "defocused_sicds")
+    sicd_dir.mkdir(parents=True, exist_ok=True)
+
+    sicd_pixels, sicd_reader = load_sicd_pixels(sicd_paths[0])
+    
 
     visualizer = Visualizer()
+    
+    for sicd_path in sicd_paths:
+        sicd_reader = SICDReader(sicd_path)
+        sicd_pixels = sicd_reader[:]
 
-    # Initialize remapper with data_mean from full scene SICD
-    remapper = Density()
-    remapper.calculate_global_parameters_from_reader(sicd_reader)
+        defocused_image = azimuth_defocus(sicd_pixels, ph_err_order=base_config["defocus"]["phase_err_order"], rand_seed=base_config["defocus"]["seed"])
 
-    ################# START HERE, go through https://github.com/antsfamily/torchbox/tree/main/torchbox tb.fft and see how they do the phase correction
-    ################# next conver this to azimuth phase error and see if that makes a difference
 
-    save_name = "defocused2.png"
-    save_name_test = "defocused2_test.png"
-    visualizer.plot_sicd(complex_pixels=defocused_image, remapper=remapper, save_path=save_name)
-    visualizer.plot_sicd(
-        complex_pixels=test_img, remapper=remapper, save_path=save_name_test
-    )
-    visualizer.plot_sicd(
-        complex_pixels=sicd_pixels, remapper=remapper, save_path="orignal.png"
-    )
+        # Create remapper per
+        remapper = Density()
+        remapper.calculate_global_parameters_from_reader(sicd_reader)
+
+        sicd_metadata = {"data_mean": remapper.data_mean}
+
+        sicd_name = Path(sicd_path).stem
+        save_name_png = sicd_dir / f"defocused_{sicd_name}.png"
+        visualizer.plot_sicd(
+            complex_pixels=sicd_pixels, remapper=remapper, save_path=str(save_name_png)
+        )
+
+        metadata_name = sicd_dir / f"defocused_{sicd_name}.json"
+        with open(metadata_name, "w") as json_file:
+            json.dump(sicd_metadata, json_file)
+
     print("Finished?")
 
 

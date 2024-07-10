@@ -52,7 +52,7 @@ def main(base_config_path: str):
 
     visualizer = Visualizer()
 
-    defocused_chip_dir = output_dir / "defocused_chips_from_chips_temp_1" / sicd_name
+    defocused_chip_dir = output_dir / "defocused_chips_from_chips" / sicd_name
     defocused_chip_dir.mkdir(parents=True, exist_ok=True)
 
     for index, chip_path in enumerate(full_chip_paths):
@@ -61,26 +61,13 @@ def main(base_config_path: str):
 
         sicd_pixels = np.load(chip_path)
         
-        defocused_image, test_img = azimuth_defocus(sicd_pixels, ph_err_order=base_config["defocus"]["phase_err_order"], rand_seed=base_config["defocus"]["seed"])
-
-        print(defocused_image[0,0])
-        print(test_img[0,0])
-
-        save_name = defocused_chip_dir / f"defocused_{chip_name}_old.png"
-        save_name2 = defocused_chip_dir / f"defocused_{chip_name}_new.png"
-        print(np.allclose(defocused_image, test_img))
+        defocused_image = azimuth_defocus(sicd_pixels, ph_err_order=base_config["defocus"]["phase_err_order"], rand_seed=base_config["defocus"]["seed"])
+        save_name = defocused_chip_dir / f"defocused_{chip_name}.png"
         visualizer.plot_sicd(complex_pixels=defocused_image, remapper=remapper, save_path=save_name)
-        visualizer.plot_sicd(complex_pixels=test_img, remapper=remapper, save_path=save_name2)
-        print(f"Defocused {index+1}/{len(full_chip_paths)}")\
         
-        if index == 10:
-            break
+        if index % 50 == 0:
+            print(f"Defocused {index+1}/{len(full_chip_paths)}")
 
-
-    ######## START HERE, test this script then implement defocus sicd to only defocus the sicd, then chip the defocused sicd
-
-    ################# START HERE, go through https://github.com/antsfamily/torchbox/tree/main/torchbox tb.fft and see how they do the phase correction
-    ################# next conver this to azimuth phase error and see if that makes a difference
     visualizer.plot_sicd(
         complex_pixels=sicd_pixels, remapper=remapper, save_path="orignal.png"
     )
