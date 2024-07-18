@@ -45,6 +45,11 @@ check: ## Check to see if any linux formatting
 	mypy ${python_source}
 	pylint ${python_source}
 
+# Analyze code for errors without running it; only lint the code
+lint: ## Check to see if any linux formatting 
+	${activate}
+	pylint ${python_source}
+
 check_windows:
 	${activate_windows}
 	black --check ${python_source}

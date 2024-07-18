@@ -26,5 +26,8 @@ defocus:
   # Order of polynomial phase error
   phase_err_order: 5
 
+  # Constant divided by 2 to multiply the phase error coefficients; Ex: mulitplier=64 then constant=64/2=32
+  coeff_multiplier: 64
+
   # Random seed for polynomial coefficients; use null for no seed
   seed: 42

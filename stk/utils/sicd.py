@@ -1,9 +1,9 @@
 # Utility file for SICD operations
 from pathlib import Path
 from typing import Tuple
-import pandas as pd
 
 import numpy as np
+import pandas as pd
 from sarpy.io.complex.sicd import SICDReader
 
 
@@ -21,9 +21,10 @@ def load_sicd_pixels(sicd_path: Path) -> Tuple[np.ndarray, SICDReader]:
     sicd_pixels = sicd_reader[:]
     return sicd_pixels, sicd_reader
 
+
 def load_ordered_chips(chips_root_path):
     """Load the sicd chips in order from a csv file and return a list of chip paths
-    
+
     Args:
         chips_root_path: Path to the scid chips
     """
@@ -37,6 +38,7 @@ def load_ordered_chips(chips_root_path):
         apply_full_path(f_name, chips_root_path) for f_name in chip_names
     ]
     return full_chip_paths
+
 
 def load_sicd_json():
     pass

@@ -19,25 +19,30 @@ from stk.utils.signal import ft, ift
 from stk.visualize.visualizer import Visualizer
 
 
-def azimuth_defocus(complex_pixels: np.ndarray[np.complex_], ph_err_order: int = 10, rand_seed: Optional[int] = None):
+def azimuth_defocus(
+    complex_pixels: np.ndarray[np.complex_],
+    ph_err_order: int = 10,
+    coeff_multiplier=64,
+    rand_seed: Optional[int] = None,
+):
     """Defocus a complex_image by an nth order polynomial phase error in the azimuth direction.
-    This implementation is largely based on: 
+    This implementation is largely based on:
 
     This function assumes the range is the y-axis and the azimuth is the x-direction.
     In the original implementation, it assumes the opposite.
 
     Args:
         complex_pixels: An image of complex pixels that have been range and azimuth compressed; a standard sicd
-        ph_err_order: Order of the random phase error polynomial to the degrade the image by; 
+        ph_err_order: Order of the random phase error polynomial to the degrade the image by;
                       must be greater than 1 becuase removing the linear trend would cancel out the phase error
-    
+        coeff_multiplier: A constant/2 to multiply the phase error coefficients
+
     Return:
         np.ndarray: Complex data of the defocused image; image is range and azimuth compressed
+        np.ndaaray: The coefficients of the polynomial phase error
     """
     if ph_err_order <= 1:
         raise ValueError("Polynomial order of the phase error must be greater than 1.")
-    
-    np.random.seed(rand_seed)
 
     # Since np.poly1d includes the constant, we need to increment by for it to be true nth order polynomial
     ph_err_order += 1
@@ -45,13 +50,15 @@ def azimuth_defocus(complex_pixels: np.ndarray[np.complex_], ph_err_order: int =
     # Degrade image with random 9th order polynomial phase;
     # Generate 10 random coefficients between [-0.5,0.5] and multiply by azimuth length;
     # for a 256x256 chip, this will generate coefficients between [-128, 128]
-    coeff = (np.random.rand(ph_err_order) - 0.5) * complex_pixels.shape[1]
+    coeffs = (np.random.rand(ph_err_order) - 0.5) * (
+        coeff_multiplier / 2
+    )  # (complex_pixels.shape[1]/2)
 
     # Generate sequential x data points between [-1,1] for each azimuth index
     x = np.linspace(-1, 1, complex_pixels.shape[1])
 
     # Evaluate the nth order polynomial at each x point
-    poly = np.poly1d(coeff)
+    poly = np.poly1d(coeffs)
     y = poly(x)
 
     # Create a line from the data using  least-squares regression to remove the linear trend;
@@ -70,11 +77,10 @@ def azimuth_defocus(complex_pixels: np.ndarray[np.complex_], ph_err_order: int =
     #                                       [range, range, range]]
     ph_err = np.tile(y[np.newaxis, :], (complex_pixels.shape[0], 1))
 
-
-    # Apply phase error by taking the FT along the azimuth direction, then multiply the phase error element-wise 
-    # by the range-compressed phase history domain data; after, take the IFT in azimuth to visualize the image 
-    # In the the original implementation, the ift is taken then the phase error is applied. 
+    # Apply phase error by taking the FT along the azimuth direction, then multiply the phase error element-wise
+    # by the range-compressed phase history domain data; after, take the IFT in azimuth to visualize the image
+    # In the the original implementation, the ift is taken then the phase error is applied.
     # I cannot understand why this is but both methods return similar images.
-    defocused_img = ift(ft(complex_pixels, ax=1) * np.exp(-1j * ph_err), ax=1)
-    
-    return defocused_img
+    defocused_img = ift(ft(complex_pixels, ax=1) * np.exp(1j * ph_err), ax=1)
+
+    return defocused_img, coeffs

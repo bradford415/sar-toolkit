@@ -1,4 +1,5 @@
 import glob
+import json
 import time
 from pathlib import Path
 
@@ -11,11 +12,10 @@ from sarpy.io.complex.sicd import SICDReader
 from sarpy.io.phase_history.cphd import CPHDReader
 from sarpy.visualization.remap import Density
 from scipy.stats import linregress
-import json
 
 from stk.autofocus.defocus import azimuth_defocus
 from stk.chip import Chipper
-from stk.utils.sicd import load_sicd_pixels, load_ordered_chips
+from stk.utils.sicd import load_ordered_chips, load_sicd_pixels
 from stk.visualize.visualizer import Visualizer
 
 
@@ -55,23 +55,38 @@ def main(base_config_path: str):
     defocused_chip_dir = output_dir / "defocused_chips_from_chips" / sicd_name
     defocused_chip_dir.mkdir(parents=True, exist_ok=True)
 
+    np.random.seed(base_config["defocus"]["seed"])
+
+    defocus_metadata = []
     for index, chip_path in enumerate(full_chip_paths):
         ## TODO: Save chip error metadata i.e. the poly coefficients as json maybe
         chip_name = Path(chip_path).stem
 
         sicd_pixels = np.load(chip_path)
-        
-        defocused_image = azimuth_defocus(sicd_pixels, ph_err_order=base_config["defocus"]["phase_err_order"], rand_seed=base_config["defocus"]["seed"])
-        save_name = defocused_chip_dir / f"defocused_{chip_name}.png"
-        visualizer.plot_sicd(complex_pixels=defocused_image, remapper=remapper, save_path=save_name)
-        
-        if index % 50 == 0:
-            print(f"Defocused {index+1}/{len(full_chip_paths)}")
 
-    visualizer.plot_sicd(
-        complex_pixels=sicd_pixels, remapper=remapper, save_path="orignal.png"
-    )
-    print("Finished?")
+        defocused_image, coeffs = azimuth_defocus(
+            sicd_pixels,
+            ph_err_order=base_config["defocus"]["phase_err_order"],
+            coeff_multiplier=base_config["defocus"]["coeff_multiplier"],
+            rand_seed=base_config["defocus"]["seed"],
+        )
+        save_name = defocused_chip_dir / f"defocused_{chip_name}.png"
+        visualizer.plot_sicd(
+            complex_pixels=defocused_image, remapper=remapper, save_path=save_name
+        )
+
+        metadata = {"chip_name": chip_name, "phase_error_coeffs": list(coeffs)}
+        defocus_metadata.append(metadata)
+
+        if index % 50 == 0:
+            print(f"Defocused {index+1}/{len(full_chip_paths)} chips...")
+
+    print("\nWriting metadata file")
+    metadata_name = defocused_chip_dir / f"ph_err_meta.json"
+    with open(metadata_name, "w") as json_file:
+        json.dump(defocus_metadata, json_file)
+        
+    print("\nFinished!")
 
 
 if __name__ == "__main__":
