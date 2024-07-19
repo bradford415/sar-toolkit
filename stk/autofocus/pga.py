@@ -99,7 +99,7 @@ def pga(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
         windowed_image[window] = shifted_image[window]  # (window_length, npulses)
 
         # Fourier Transform along azimuth axis
-        #breakpoint()
+        # breakpoint()
         # Might need to change this name convention if it's not signals
         windowed_signals = ift(windowed_image, ax=0)
 

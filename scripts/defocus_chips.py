@@ -70,9 +70,13 @@ def main(base_config_path: str):
             coeff_multiplier=base_config["defocus"]["coeff_multiplier"],
             rand_seed=base_config["defocus"]["seed"],
         )
-        save_name = defocused_chip_dir / f"defocused_{chip_name}.png"
+
+        # Save complex image as .npy and remapped image as .png
+        save_name_npy = defocused_chip_dir / f"defocused_{chip_name}.npy"
+        save_name_png = defocused_chip_dir / f"defocused_{chip_name}.png"
+        np.save(save_name_npy, defocused_image)
         visualizer.plot_sicd(
-            complex_pixels=defocused_image, remapper=remapper, save_path=save_name
+            complex_pixels=defocused_image, remapper=remapper, save_path=save_name_png
         )
 
         metadata = {"chip_name": chip_name, "phase_error_coeffs": list(coeffs)}
@@ -85,7 +89,7 @@ def main(base_config_path: str):
     metadata_name = defocused_chip_dir / f"ph_err_meta.json"
     with open(metadata_name, "w") as json_file:
         json.dump(defocus_metadata, json_file)
-        
+
     print("\nFinished!")
 
 

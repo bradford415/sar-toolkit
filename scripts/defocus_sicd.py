@@ -51,7 +51,7 @@ def main(base_config_path: str):
         defocused_image = azimuth_defocus(
             sicd_pixels,
             ph_err_order=base_config["defocus"]["phase_err_order"],
-            coeff_multiplier=base_config["defocus"]["coeff"],
+            coeff_multiplier=base_config["defocus"]["coeff_multiplier"],
             rand_seed=base_config["defocus"]["seed"],
         )
 

@@ -1,7 +1,13 @@
+import matplotlib.pyplot as plt
 import numpy as np
 import scipy.stats
+import yaml
+from fire import Fire
 from PIL import Image
+from sarpy.visualization.remap import Density
 from scipy.fftpack import fft, fft2, fftshift, ifft, ifft2
+
+from stk.visualize import Visualizer
 
 
 # --------------------------------------------------------------------------------------
@@ -138,20 +144,13 @@ def pga_range_focus(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
             if rms[iteration] < 0.01:
                 break
 
-        # Repeat the azimuth phase error along the range direction
-        phi2 = np.tile(np.array([phi]), (nsamples, 1))
-        
-        # Still don't understand why the ift is used
-        IMG_af = ift(img_af, ax=1)
-        
-        # Apply correction, element-wise
+        # Apply correction
+        phi2 = np.tile(np.array([phi]).T, (1, nsamples))
+        IMG_af = ift(img_af, ax=0)
         IMG_af = IMG_af * np.exp(-1j * phi2)
-        
-        # Return paritally correct phase error back to range compressed phase history data
-        # for the next iteration of pga
         img_af = ft(
-            IMG_af, ax=1
-        ) 
+            IMG_af, ax=0
+        )  # FIXME: gets back in az signal domain because thats what the algo requires maybe?
 
         # Store phase
         af_ph += phi
@@ -179,7 +178,7 @@ def pga_az_focus(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
 
     # Initialize loop variables
     img_af = 1.0 * img
-    max_iter = 30
+    max_iter = 1000
     af_ph = 0
     rms = []
 
@@ -234,7 +233,7 @@ def pga_az_focus(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
         windowed_image[window] = shifted_image[window]  # (window_length, npulses)
 
         # Fourier Transform along azimuth axis
-        #breakpoint()
+        # breakpoint()
         windowed_image_ift = ift(windowed_image, ax=0)
 
         ### TODO: start here and finish, understanding algorithm; figure out why they use the ift and not ft; also look through autofocus demo in ritsar
@@ -244,7 +243,9 @@ def pga_az_focus(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
         #   2. Sum the result across the range direction
         #   3. Extract the angle of each complex sum
         phi_dot = np.angle(
-            np.sum(np.conj(windowed_image_ift[:, :-1]) * windowed_image_ift[:, 1:], axis=0)
+            np.sum(
+                np.conj(windowed_image_ift[:, :-1]) * windowed_image_ift[:, 1:], axis=0
+            )
         )
 
         # Integrate to obtain estimate of the phase error;
@@ -253,7 +254,6 @@ def pga_az_focus(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
         # the integration on the interval of the star of the array and the index
         # i.e. cumsum_output[3] will be the value of integration from [0,3).
         # A [0] is prepended because in phi_dot we multiplied by (window_azimuth-1, window_range)
-        breakpoint()
         phi = np.concatenate([[0], np.cumsum(phi_dot)])
 
         # TODO: Understand what this does and why its needed
@@ -273,18 +273,26 @@ def pga_az_focus(img, win="auto", win_params=[100, 0.5], shadow_pga=False):
             if rms[iteration] < 0.01:
                 break
 
-        # Apply correction
-        phi2 = np.tile(np.array([phi]).T, (1, nsamples))
-        IMG_af = ift(img_af, ax=0)
+        # Repeat the azimuth phase error along the range direction
+        phi2 = np.tile(np.array([phi]), (nsamples, 1))
+
+        # Still don't understand why the ift is used
+        IMG_af = ift(img_af, ax=1)
+
+        # Apply correction, element-wise
         IMG_af = IMG_af * np.exp(-1j * phi2)
-        img_af = ft(
-            IMG_af, ax=0
-        )  # FIXME: gets back in az signal domain because thats what the algo requires maybe?
+
+        # Return paritally correct phase error back to range compressed phase history data
+        # for the next iteration of PGA
+        img_af = ft(IMG_af, ax=1)
 
         # Store phase
         af_ph += phi
 
     print("number of iterations: {}".format(iteration + 1))
+
+    # Compress azimuth after PGA
+    img_af = ift(img_af, ax=1)
 
     return (img_af, np.flip(af_ph), rms)
 
@@ -300,13 +308,35 @@ def ift(F, ax=-1):
     return f
 
 
+import json
+
 from stk.utils.sicd import load_sicd_pixels
 
 if __name__ == "__main__":
-    #chip_path = "/home/bselee/programming/sar-toolkit/output/defocused_chips_from_chips/CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202/defocused_CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202_5.png"
-    chip_path = "/home/bselee/programming/sar-toolkit/output/sicd_chips/CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202/CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202_5.npy"
+    orig_chip_path = "/home/bselee/programming/sar-toolkit/output/sicd_chips/CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202/CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202_5.npy"
+    chip_path = "/home/bselee/programming/sar-toolkit/output/defocused_chips_from_chips/CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202/defocused_CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202_5.npy"
+    orig_complex_pixels = np.load(orig_chip_path)
     complex_pixels = np.load(chip_path)
+
+    visualizer = Visualizer()
+
+    # Load sicd metadata for remap
+    metadata_name = "/home/bselee/programming/sar-toolkit/output/remapped_sicds/CAPELLA_C02_SM_SICD_HH_20210215180158_20210215180202.json"
+    with open(metadata_name) as json_file:
+        sicd_metadata = json.load(json_file)
+    remapper = Density(data_mean=sicd_metadata["data_mean"])
     rg_comp_ph_hist = ft(complex_pixels, ax=1)
-    pga_az_focus(rg_comp_ph_hist)
-    # TODO save .npy defocused chips as well
+    focused_imaged, _, _ = pga_az_focus(rg_comp_ph_hist)
+    save_name_png = "pga_focused_image.png"
     breakpoint()
+    print(np.allclose(focused_imaged, complex_pixels))
+    visualizer.plot_sicd(
+        complex_pixels=focused_imaged, remapper=remapper, save_path=str(save_name_png)
+    )
+    visualizer.plot_autofocus_chips(
+        orig_chip=orig_complex_pixels,
+        defocus_chip=complex_pixels,
+        focus_chip=focused_imaged,
+        remapper=remapper,
+        save_path="3_imgs.png",
+    )
