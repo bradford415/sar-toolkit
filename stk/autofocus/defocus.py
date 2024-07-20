@@ -1,7 +1,7 @@
 import glob
 import time
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Tuple
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -24,7 +24,7 @@ def azimuth_defocus(
     ph_err_order: int = 10,
     coeff_multiplier=64,
     rand_seed: Optional[int] = None,
-):
+) -> Tuple[np.ndarray, np.ndarray, int, float]:
     """Defocus a complex_image by an nth order polynomial phase error in the azimuth direction.
     This implementation is largely based on:
 
@@ -62,11 +62,12 @@ def azimuth_defocus(
     y = poly(x)
 
     # Create a line from the data using  least-squares regression to remove the linear trend;
-    # I'm not sure why we need to remove the linear trend
     slope, intercept, r_value, p_value, std_err = linregress(x, y)
     line = slope * x + np.mean(
         y
     )  # np.mean(y) is the same as intercept in this case; this is only true when the data is mean-centered i.e. subtracting the y mean from y and x mean from x
+    
+    
     y = y - line
 
     # Repeat the azimuth phase error across the range bins;
@@ -83,4 +84,4 @@ def azimuth_defocus(
     # I cannot understand why this is but both methods return similar images.
     defocused_img = ift(ft(complex_pixels, ax=1) * np.exp(1j * ph_err), ax=1)
 
-    return defocused_img, coeffs
+    return defocused_img, coeffs, poly.order, coeff_multiplier

@@ -64,7 +64,7 @@ def main(base_config_path: str):
 
         sicd_pixels = np.load(chip_path)
 
-        defocused_image, coeffs = azimuth_defocus(
+        defocused_image, coeffs, poly_order, coe_multiplier = azimuth_defocus(
             sicd_pixels,
             ph_err_order=base_config["defocus"]["phase_err_order"],
             coeff_multiplier=base_config["defocus"]["coeff_multiplier"],
@@ -79,7 +79,12 @@ def main(base_config_path: str):
             complex_pixels=defocused_image, remapper=remapper, save_path=save_name_png
         )
 
-        metadata = {"chip_name": chip_name, "phase_error_coeffs": list(coeffs)}
+        metadata = {
+            "chip_name": chip_name,
+            "phase_error_coeffs": list(coeffs),
+            "poly_order": poly_order,
+            "coeffs_multiplier": coe_multiplier,
+        }
         defocus_metadata.append(metadata)
 
         if index % 50 == 0:

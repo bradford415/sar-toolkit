@@ -28,9 +28,9 @@ class Visualizer:
     ):
         fig, axs = plt.subplots(3, 1)
         all_chips_array = np.hstack((orig_chip, defocus_chip, focus_chip))
-        
+
         remapped_img = remapper(all_chips_array)
-        
+
         pil_img = Image.fromarray(remapped_img)
         pil_img.save(save_path)
         # all_chips = [orig_chip, defocus_chip, focus_chip]
