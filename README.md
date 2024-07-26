@@ -8,3 +8,5 @@ With AWS CLI go to `Data file > Copy URL` and use the following command format t
 aws s3 cp s3://capella-open-data/data/2021/2/16/CAPELLA_C02_SM_CPHD_HH_20210216020741_20210216
 020745/CAPELLA_C02_SM_CPHD_HH_20210216020741_20210216020745.cphd . --no-sign-request`
 ```
+
+If the file cannot be found, you can just manually download it with the `Download` button.
