@@ -1,0 +1,33 @@
+# Base config file which stores the default parameters which apply to all model configurations
+---
+
+# Root directory of your project; type "pwd" in the command line to find it
+root_dir: "C:/Users/bsele/Documents/Programming/machine-learning/detectors"
+
+input_data: "data/input.txt"
+
+# Local path for output_files
+output_path: "output"
+
+# Parameters for the dataset class
+data:
+
+  # Path to the root of the dataset
+  root: "/home/jovyan/local-data"
+
+  # Path to the sicd chips; this is the path created after chip_sicds.py is used
+  chips: "/home/jovyan/programming/sar-toolkit/output/sicd_chips/CAPELLA_C06_SS_SICD_HH_20210618180136_20210618180150"
+
+# Parameters for the defocus script
+defocus:
+  # File type to defocus; either sicd or chip
+  image_type: "sicd"
+
+  # Order of polynomial phase error
+  phase_err_order: 7
+
+  # Constant divided by 2 to multiply the phase error coefficients; Ex: mulitplier=64 then constant=64/2=32
+  coeff_multiplier: 64
+
+  # Random seed for polynomial coefficients; use null for no seed
+  seed: 42

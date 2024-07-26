@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import List
 
 import numpy as np
 import pandas as pd
@@ -27,7 +28,7 @@ class Chipper:
 
         self.output_dir = output_dir
 
-    def chip_sicds(self, sicd_paths: list[Path]) -> None:
+    def chip_sicds(self, sicd_paths: List[Path]) -> None:
         """TODO"""
 
         assert sicd_paths, "sicd_paths cannot be empty"

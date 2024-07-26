@@ -30,7 +30,7 @@ def main(base_config_path: str):
 
     sicd_paths = glob.glob(str(Path(base_config["data"]["root"]) / "sicds" / "*.ntf"))
 
-    assert sicd_paths
+    assert sicd_paths, "sicd_paths cannot be empty"
 
     sicd_chipper = Chipper(256, 256)
 

@@ -20,7 +20,7 @@ from stk.visualize.visualizer import Visualizer
 
 
 def azimuth_defocus(
-    complex_pixels: np.ndarray[np.complex_],
+    complex_pixels: np.ndarray,
     ph_err_order: int = 10,
     coeff_multiplier=64,
     rand_seed: Optional[int] = None,

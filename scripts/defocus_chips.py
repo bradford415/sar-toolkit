@@ -33,10 +33,6 @@ def main(base_config_path: str):
     output_dir = Path(base_config["output_path"])
     output_dir.mkdir(parents=True, exist_ok=True)
 
-    # Init file paths
-    output_dir = Path(base_config["output_path"])
-    output_dir.mkdir(parents=True, exist_ok=True)
-
     chips_root_path = Path(base_config["data"]["chips"])
     sicd_name = chips_root_path.name
 
