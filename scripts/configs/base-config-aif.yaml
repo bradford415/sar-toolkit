@@ -2,7 +2,7 @@
 ---
 
 # Root directory of your project; type "pwd" in the command line to find it
-root_dir: "C:/Users/bsele/Documents/Programming/machine-learning/detectors"
+root_dir: "/home/bselee/programming/sar-toolkit"
 
 input_data: "data/input.txt"
 

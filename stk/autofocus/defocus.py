@@ -66,8 +66,7 @@ def azimuth_defocus(
     line = slope * x + np.mean(
         y
     )  # np.mean(y) is the same as intercept in this case; this is only true when the data is mean-centered i.e. subtracting the y mean from y and x mean from x
-    
-    
+
     y = y - line
 
     # Repeat the azimuth phase error across the range bins;

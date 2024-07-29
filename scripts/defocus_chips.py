@@ -48,6 +48,7 @@ def main(base_config_path: str):
 
     visualizer = Visualizer()
 
+    # TODO: might want to remove the '_from_chips', still undecided
     defocused_chip_dir = output_dir / "defocused_chips_from_chips" / sicd_name
     defocused_chip_dir.mkdir(parents=True, exist_ok=True)
 
