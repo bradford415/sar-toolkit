@@ -15,3 +15,10 @@ aws s3 cp --no-sign-requests3://capella-open-data/data/2021/2/16/CAPELLA_C02_SM_
 ```
 
 If the file cannot be found, you can just manually download it with the `Download` button.
+
+## Usage
+
+### Chipping a full-scene SAR Image
+```bash
+python scripts/chip_sicd.py /mnt/d/datasets/capella-sar/sicds/CAPELLA_C13_SP_SICD_HH_20241127120857_20241127120930.ntf --chip-size 512 --remap
+```
