@@ -5,13 +5,15 @@ from typing import Tuple
 import numpy as np
 import pandas as pd
 from sarpy.io.complex.sicd import SICDReader
+from sarpy.visualization.remap import Density
 
 
-def load_sicd_pixels(sicd_path: Path) -> Tuple[np.ndarray, SICDReader]:
+def load_sicd_pixels(sicd_path: Path, remap: bool = False) -> Tuple[np.ndarray, SICDReader]:
     """Load SICD complex data from file path with .ntf file extension
 
     Args:
         sicd_path: Path to SICD file with .ntf extension
+        remap: Whether to perform a density remap
 
     Return:
         np.ndarray of complex image data
@@ -19,6 +21,9 @@ def load_sicd_pixels(sicd_path: Path) -> Tuple[np.ndarray, SICDReader]:
     """
     sicd_reader = SICDReader(sicd_path)
     sicd_pixels = sicd_reader[:]
+    if remap:
+        print("Applying density remap")
+        sicd_pixels = Density()(sicd_pixels)
     return sicd_pixels, sicd_reader
 
 

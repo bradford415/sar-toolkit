@@ -3,6 +3,7 @@ from typing import List
 
 import numpy as np
 import pandas as pd
+from PIL import Image
 
 from stk.utils.sicd import load_sicd_pixels
 
@@ -14,6 +15,7 @@ class Chipper:
         self,
         chip_h: int = 256,
         chip_w: int = 256,
+        remap: bool = False,
         output_dir: Path = Path("output/sicd_chips"),
     ):
         """Initalize parameters for chipping the SAR image
@@ -25,27 +27,35 @@ class Chipper:
         """
         self.chip_h = chip_h
         self.chip_w = chip_w
+        
+        self.remap = remap
 
         self.output_dir = output_dir
 
     def chip_sicds(self, sicd_paths: List[Path]) -> None:
-        """TODO"""
+        """Chip the list of sicds"""
 
         assert sicd_paths, "sicd_paths cannot be empty"
 
-        for sicd_path in sicd_paths:
-            complex_pixels, _ = load_sicd_pixels(sicd_path)
+        for index, sicd_path in enumerate(sicd_paths):
+            print(f"Chipping SICD {index+1}/{len(sicd_paths)}")
+
+            if Path(sicd_path).suffix == ".png":
+                pil_image = Image.open(sicd_path)
+                pixels = np.array(pil_image)
+            else:
+                pixels, _ = load_sicd_pixels(sicd_path, self.remap)
 
             # Crop image to make it divisble by the desired chip dimensions
-            h, w = complex_pixels.shape
+            h, w = pixels.shape
             num_rows, num_cols = h // self.chip_h, w // self.chip_w
             new_h, new_w = num_rows * self.chip_h, num_cols * self.chip_w
 
-            complex_pixels = complex_pixels[:new_h, :new_w]
+            pixels = pixels[:new_h, :new_w]
 
             # (num_chips, chip_h, chip_w)
             chipped_pixels = (
-                complex_pixels.reshape(
+                pixels.reshape(
                     new_h // self.chip_h, self.chip_h, -1, self.chip_w
                 )
                 .swapaxes(1, 2)

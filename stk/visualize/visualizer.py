@@ -1,4 +1,5 @@
 from pathlib import Path
+from typing import Optional
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -11,9 +12,12 @@ class Visualizer:
     def __init__(self):
         pass
 
-    def plot_sicd(self, complex_pixels: np.ndarray, remapper: Density, save_path: str):
+    def plot_sicd(self, pixels: np.ndarray, save_path: str, remapper: Optional[Density] = None):
         """TODO"""
-        remapped_img = remapper(complex_pixels)
+        
+        remapped_img = pixels
+        if remapper:
+            remapped_img = remapper(pixels)
 
         pil_img = Image.fromarray(remapped_img)
         pil_img.save(save_path)
